@@ -1,0 +1,14 @@
+image:
+  registry: quay.io
+  repository: pminkows/sample-kotlin-spring
+  tag: "1.0"
+
+app:
+  name: sample-spring-boot-kotlin
+  replicas: 1
+  ports:
+    - name: http
+      value: 8080
+  envs:
+    - name: PASS
+      value: xxx
