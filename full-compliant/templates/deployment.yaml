@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}
+  labels:
+    app: {{ .Values.app.name }}
+    env: {{ .Values.app.environment }}
+    owner: {{ .Values.app.owner }}
+spec:
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+        env: {{ .Values.app.environment }}
+    spec:
+      containers:
+        - name: {{ .Values.app.name }}
+          image: {{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}
+          resources:
+            requests:
+              memory: {{ .Values.app.resources.memoryRequest }}
+              cpu: {{ .Values.app.resources.cpuRequest }}
+            limits:
+              memory: {{ .Values.app.resources.memoryLimit }}
+              cpu: {{ .Values.app.resources.cpuLimit }}
+          livenessProbe:
+            initialDelaySeconds: {{ .Values.app.liveness.initialDelaySeconds }}
+            httpGet:
+              port: {{ .Values.app.liveness.port }}
+              path: {{ .Values.app.liveness.path }}
+            failureThreshold: {{ .Values.app.liveness.failureThreshold }}
+            successThreshold: {{ .Values.app.liveness.successThreshold }}
+            timeoutSeconds: {{ .Values.app.liveness.timeoutSeconds }}
+            periodSeconds: {{ .Values.app.liveness.periodSeconds }}
+          readinessProbe:
+            initialDelaySeconds: {{ .Values.app.readiness.initialDelaySeconds }}
+            httpGet:
+              port: {{ .Values.app.readiness.port }}
+              path: {{ .Values.app.readiness.path }}
+            failureThreshold: {{ .Values.app.readiness.failureThreshold }}
+            successThreshold: {{ .Values.app.readiness.successThreshold }}
+            timeoutSeconds: {{ .Values.app.readiness.timeoutSeconds }}
+            periodSeconds: {{ .Values.app.readiness.periodSeconds }}
+          ports:
+          {{- range .Values.app.ports }}
+            - containerPort: {{ .value }}
+              name: {{ .name }}
+          {{- end }}
+          {{- if .Values.app.envs }}
+          env:
+          {{- range .Values.app.envs }}
+            - name: {{ .name }}
+              value: {{ .value }}
+          {{- end }}
+          {{- end }}
+          securityContext:
+            runAsNonRoot: true
