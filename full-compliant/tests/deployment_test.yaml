@@ -19,7 +19,7 @@ tests:
           value: quay.io/pminkows/sample-kotlin-spring:1.0
       - equal:
           path: metadata.labels.app
-          value: sample-spring-boot-kotli
+          value: sample-spring-boot-kotlin
       - equal:
           path: metadata.labels.env
           value: test
