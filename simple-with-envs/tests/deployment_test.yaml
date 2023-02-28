@@ -1,0 +1,42 @@
+suite: test deployment
+values:
+  - ./values/test.yaml
+templates:
+  - templates/deployment.yaml
+chart:
+  version: 1.0
+  appVersion: 1.0
+tests:
+  - it: should pass all kinds of assertion
+    template: templates/deployment.yaml
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: spec.replicas
+          value: 1
+      - equal:
+          path: spec.template.spec.containers[?(@.name == "sample-app")].image
+          value: quay.io/pminkows/sample-app:1.0
+      - equal:
+          path: spec.template.metadata.labels.app
+          value: sample-app
+      - matchRegex:
+          path: metadata.name
+          pattern: ^.*-app$
+      - contains:
+          path: spec.template.spec.containers[?(@.name == "sample-app")].ports
+          content:
+            containerPort: 8080
+            name: http
+      - notContains:
+          path: spec.template.spec.containers[?(@.name == "sample-app")].ports
+          content:
+            containerPort: 80
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "sample-app")].livenessProbe
+      - isNull:
+          path: spec.template.spec.containers[?(@.name == "sample-app")].readinessProbe
+      - isKind:
+          of: Deployment
+      - isAPIVersion:
+          of: apps/v1
